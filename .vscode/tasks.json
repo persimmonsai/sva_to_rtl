@@ -1,0 +1,13 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Run SVA to RTL Tool",
+			"type": "shell",
+			"command": "PYTHONPATH=/Users/uge/Development/sva_to_rtl /Users/uge/Development/sva_to_rtl/.venv/bin/python -m sva_to_rtl.cli translate examples/simple_assertions.sv -o output -t -v",
+			"group": "build",
+			"isBackground": false,
+			"problemMatcher": []
+		}
+	]
+}

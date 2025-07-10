@@ -17,9 +17,9 @@ VERILOG_SOURCES = $(PWD)/examples/example_design.sv
 include $(shell cocotb-config --makefiles)/Makefile.sim
 
 # Additional targets
-.PHONY: clean test-rtl test-cocotb
+.PHONY: clean-project test-rtl test-cocotb
 
-clean:
+clean-project:
 	rm -rf __pycache__
 	rm -rf results.xml
 	rm -rf sim_build
@@ -32,7 +32,7 @@ test-rtl:
 
 test-cocotb:
 	@echo "Testing cocotb generation..."
-	python -m sva_to_rtl.cli translate examples/simple_assertions.sv -o test_output -c
+	python -m sva_to_rtl.cli translate examples/simple_assertions.sv -o test_output --generate-cocotb
 
 test-all: test-rtl test-cocotb
 	@echo "Running complete test suite..."
@@ -40,7 +40,7 @@ test-all: test-rtl test-cocotb
 
 help:
 	@echo "Available targets:"
-	@echo "  clean      - Clean build artifacts"
+	@echo "  clean-project - Clean build artifacts"
 	@echo "  test-rtl   - Test RTL generation"
 	@echo "  test-cocotb - Test cocotb generation"
 	@echo "  test-all   - Run all tests"

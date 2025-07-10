@@ -23,6 +23,12 @@ A Python tool for translating SystemVerilog Assertions (SVA) into synthesizable 
   - Includes assertion status outputs (pass/fail/active)
   - Produces testbenches for verification
 
+- **Cocotb Generator**: Creates Python-based runtime assertions:
+  - Generates cocotb-compatible Python test code
+  - Implements assertion checking as coroutines
+  - Supports implication and delay operators
+  - Provides runtime verification capabilities
+
 - **Command Line Interface**: Easy-to-use CLI with multiple modes:
   - File-based translation
   - Text-based translation
@@ -47,7 +53,7 @@ pip install -e .
 ### Install Required Packages
 
 ```bash
-pip install click pyparsing jinja2
+pip install click pyparsing jinja2 cocotb
 ```
 
 ## Usage
@@ -65,13 +71,20 @@ python -m sva_to_rtl.cli translate input_file.sv
 Options:
 - `--output-dir, -o`: Output directory for generated files (default: output)
 - `--generate-testbench, -t`: Generate testbench files
+- `--generate-cocotb, -c`: Generate cocotb Python test files
 - `--optimize`: Optimize generated state machines
 - `--verbose, -v`: Enable verbose output
 - `--list-assertions, -l`: List found assertions without generating RTL
 
 Example:
 ```bash
-python -m sva_to_rtl.cli translate examples/example_design.sv -o generated_rtl -t -v
+python -m sva_to_rtl.cli translate examples/example_design.sv -o generated_rtl -t -c -v
+```
+
+#### Generate cocotb tests only
+
+```bash
+python -m sva_to_rtl.cli translate examples/simple_assertions.sv -c -o cocotb_tests
 ```
 
 #### 2. Translate Single Assertion Text
@@ -92,6 +105,7 @@ python -m sva_to_rtl.cli analyze input_file.sv -v
 from sva_to_rtl.parser import SVAParser
 from sva_to_rtl.state_machine import StateMachineGenerator
 from sva_to_rtl.rtl_generator import RTLGenerator
+from sva_to_rtl.cocotb_generator import CocotbGenerator
 
 # Parse SVA assertions
 parser = SVAParser()
@@ -105,9 +119,16 @@ state_machines = sm_generator.generate_multiple(assertions)
 rtl_generator = RTLGenerator()
 rtl_modules = rtl_generator.generate_multiple(state_machines)
 
+# Generate cocotb tests
+cocotb_generator = CocotbGenerator()
+cocotb_assertions = cocotb_generator.generate_multiple(assertions, state_machines)
+
 # Save RTL files
 for name, module in rtl_modules.items():
     rtl_generator.save_module(module, f"{name}.sv")
+
+# Save cocotb test file
+cocotb_generator.save_test_file(list(cocotb_assertions.values()), "test_assertions.py")
 ```
 
 ## Supported SVA Constructs

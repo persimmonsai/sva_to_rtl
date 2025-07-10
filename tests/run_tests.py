@@ -17,6 +17,7 @@ def run_tests():
         from sva_to_rtl.parser import SVAParser
         from sva_to_rtl.state_machine import StateMachineGenerator
         from sva_to_rtl.rtl_generator import RTLGenerator
+        from sva_to_rtl.cocotb_generator import CocotbGenerator
         
         print("✓ All modules imported successfully")
         
@@ -36,6 +37,11 @@ def run_tests():
         rtl_module = rtl_generator.generate(sm)
         print(f"✓ RTL generator test passed: {rtl_module.name}")
         
+        # Test cocotb generator
+        cocotb_generator = CocotbGenerator()
+        cocotb_assertion = cocotb_generator.generate(assertion, sm)
+        print(f"✓ Cocotb generator test passed: {cocotb_assertion.class_name}")
+        
         # Test complete flow
         test_text = """
         assert1: assert property (@(posedge clk) req |-> ##1 ack);
@@ -45,8 +51,9 @@ def run_tests():
         assertions = parser.parse_text(test_text)
         state_machines = sm_generator.generate_multiple(assertions)
         rtl_modules = rtl_generator.generate_multiple(state_machines)
+        cocotb_assertions = cocotb_generator.generate_multiple(assertions, state_machines)
         
-        print(f"✓ Complete flow test passed: {len(rtl_modules)} modules generated")
+        print(f"✓ Complete flow test passed: {len(rtl_modules)} RTL modules, {len(cocotb_assertions)} cocotb assertions generated")
         
         print("\n" + "=" * 40)
         print("All tests passed successfully!")

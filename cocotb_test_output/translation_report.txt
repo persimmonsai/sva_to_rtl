@@ -1,0 +1,128 @@
+SVA to RTL Translation Report
+==================================================
+
+SUMMARY
+--------------------
+Total assertions processed: 5
+State machines generated: 5
+RTL modules generated: 5
+Cocotb assertions generated: 5
+
+ASSERTION DETAILS
+--------------------
+Assertion: basic_assert
+  Type: assert
+  Expression: a |-> b
+
+Assertion: delay_assert
+  Type: assert
+  Expression: a |-> ##1 b
+
+Assertion: multi_delay
+  Type: assert
+  Expression: a |-> ##3 b
+
+Assertion: cover_example
+  Type: cover
+  Expression: a && b
+
+Assertion: assume_example
+  Type: assume
+  Expression: a |-> ##1 b
+
+STATE MACHINE DETAILS
+--------------------
+State Machine: basic_assert_checker
+  States: 5
+  Transitions: 4
+  Signals: 2
+  Signal list: a, b
+
+State Machine: delay_assert_checker
+  States: 5
+  Transitions: 4
+  Signals: 2
+  Signal list: a, b
+
+State Machine: multi_delay_checker
+  States: 5
+  Transitions: 4
+  Signals: 2
+  Signal list: a, b
+
+State Machine: cover_example_checker
+  States: 3
+  Transitions: 2
+  Signals: 2
+  Signal list: a, b
+
+State Machine: assume_example_checker
+  States: 3
+  Transitions: 4
+  Signals: 2
+  Signal list: a, b
+
+RTL MODULE DETAILS
+--------------------
+Module: basic_assert_checker_rtl
+  Ports: 6
+  Internal signals: 2
+  Parameters: 6
+
+Module: delay_assert_checker_rtl
+  Ports: 6
+  Internal signals: 2
+  Parameters: 6
+
+Module: multi_delay_checker_rtl
+  Ports: 6
+  Internal signals: 2
+  Parameters: 6
+
+Module: cover_example_checker_rtl
+  Ports: 6
+  Internal signals: 1
+  Parameters: 4
+
+Module: assume_example_checker_rtl
+  Ports: 6
+  Internal signals: 2
+  Parameters: 4
+
+COCOTB ASSERTION DETAILS
+--------------------
+Cocotb Assertion: basic_assert
+  Class: Basic_AssertChecker
+  Clock: clk
+  Reset: None
+  Signals: 2
+  Signal list: a, b
+
+Cocotb Assertion: delay_assert
+  Class: Delay_AssertChecker
+  Clock: clk
+  Reset: None
+  Signals: 2
+  Signal list: a, b
+
+Cocotb Assertion: multi_delay
+  Class: Multi_DelayChecker
+  Clock: clk
+  Reset: None
+  Signals: 2
+  Signal list: a, b
+
+Cocotb Assertion: cover_example
+  Class: Cover_ExampleChecker
+  Clock: clk
+  Reset: None
+  Signals: 2
+  Signal list: a, b
+
+Cocotb Assertion: assume_example
+  Class: Assume_ExampleChecker
+  Clock: clk
+  Reset: None
+  Signals: 2
+  Signal list: a, b
+

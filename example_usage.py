@@ -14,6 +14,7 @@ sys.path.insert(0, str(project_root))
 from sva_to_rtl.parser import SVAParser
 from sva_to_rtl.state_machine import StateMachineGenerator
 from sva_to_rtl.rtl_generator import RTLGenerator
+from sva_to_rtl.cocotb_generator import CocotbGenerator
 
 def main():
     """Example usage of the SVA to RTL tool"""
@@ -82,8 +83,24 @@ def main():
         
         print(f"✓ Saved testbench to: {tb_file}")
         
-        # Example 6: Process multiple assertions
-        print("\n6. Processing multiple assertions:")
+        # Example 6: Generate cocotb test
+        print("\n6. Generating cocotb test:")
+        print("-" * 30)
+        
+        cocotb_generator = CocotbGenerator()
+        cocotb_assertion = cocotb_generator.generate(assertion, sm)
+        
+        print(f"✓ Generated cocotb assertion: {cocotb_assertion.class_name}")
+        print(f"  Signals: {sorted(cocotb_assertion.signals)}")
+        
+        # Save cocotb test file
+        cocotb_test_file = output_dir / "test_cocotb_example.py"
+        cocotb_generator.save_test_file([cocotb_assertion], str(cocotb_test_file))
+        
+        print(f"✓ Saved cocotb test to: {cocotb_test_file}")
+        
+        # Example 7: Process multiple assertions
+        print("\n7. Processing multiple assertions:")
         print("-" * 30)
         
         multi_sva_text = """
@@ -101,11 +118,20 @@ def main():
         rtl_modules = rtl_generator.generate_multiple(state_machines)
         print(f"✓ Generated {len(rtl_modules)} RTL modules")
         
+        cocotb_assertions = cocotb_generator.generate_multiple(assertions, state_machines)
+        print(f"✓ Generated {len(cocotb_assertions)} cocotb assertions")
+        
         # Save all modules
         for name, module in rtl_modules.items():
             module_file = output_dir / f"{name}.sv"
             rtl_generator.save_module(module, str(module_file))
-            print(f"  - Saved: {module_file.name}")
+            print(f"  - Saved RTL: {module_file.name}")
+        
+        # Save cocotb test file
+        if cocotb_assertions:
+            cocotb_test_file = output_dir / "test_all_assertions.py"
+            cocotb_generator.save_test_file(list(cocotb_assertions.values()), str(cocotb_test_file))
+            print(f"  - Saved cocotb test: {cocotb_test_file.name}")
         
         print("\n" + "=" * 50)
         print("Example completed successfully!")

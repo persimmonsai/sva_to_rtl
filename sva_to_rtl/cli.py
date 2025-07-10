@@ -14,6 +14,7 @@ from pathlib import Path
 from .parser import SVAParser
 from .state_machine import StateMachineGenerator
 from .rtl_generator import RTLGenerator
+from .cocotb_generator import CocotbGenerator
 
 
 @click.command()
@@ -24,6 +25,8 @@ from .rtl_generator import RTLGenerator
               help='Prefix for generated module names')
 @click.option('--generate-testbench', '-t', is_flag=True,
               help='Generate testbench files')
+@click.option('--generate-cocotb', '--cocotb', is_flag=True,
+              help='Generate cocotb Python test files')
 @click.option('--optimize', is_flag=True,
               help='Optimize generated state machines')
 @click.option('--verbose', '-v', is_flag=True,
@@ -35,7 +38,7 @@ from .rtl_generator import RTLGenerator
 @click.option('--list-assertions', '-l', is_flag=True,
               help='List all found assertions without generating RTL')
 def main(input_file: str, output_dir: str, module_prefix: str, 
-         generate_testbench: bool, optimize: bool, verbose: bool,
+         generate_testbench: bool, generate_cocotb: bool, optimize: bool, verbose: bool,
          clock_name: str, reset_name: str, list_assertions: bool):
     """
     SVA to RTL Translation Tool
@@ -92,6 +95,15 @@ def main(input_file: str, output_dir: str, module_prefix: str,
         if verbose:
             click.echo(f"Generated {len(rtl_modules)} RTL module(s)")
         
+        # Generate cocotb tests if requested
+        cocotb_assertions = {}
+        if generate_cocotb:
+            cocotb_generator = CocotbGenerator()
+            cocotb_assertions = cocotb_generator.generate_multiple(assertions, state_machines)
+            
+            if verbose:
+                click.echo(f"Generated {len(cocotb_assertions)} cocotb assertion(s)")
+        
         # Create output directory
         output_path = Path(output_dir)
         output_path.mkdir(parents=True, exist_ok=True)
@@ -114,9 +126,17 @@ def main(input_file: str, output_dir: str, module_prefix: str,
                 if verbose:
                     click.echo(f"Saved testbench: {tb_file}")
         
+        # Generate cocotb test files if requested
+        if generate_cocotb and cocotb_assertions:
+            cocotb_file = output_path / "test_sva_assertions.py"
+            cocotb_generator.save_test_file(list(cocotb_assertions.values()), str(cocotb_file))
+            
+            if verbose:
+                click.echo(f"Saved cocotb test file: {cocotb_file}")
+        
         # Generate summary report
         report_file = output_path / "translation_report.txt"
-        generate_report(assertions, state_machines, rtl_modules, str(report_file))
+        generate_report(assertions, state_machines, rtl_modules, str(report_file), cocotb_assertions)
         
         if verbose:
             click.echo(f"Generated report: {report_file}")
@@ -254,7 +274,7 @@ def analyze(input_file: str, verbose: bool):
         sys.exit(1)
 
 
-def generate_report(assertions, state_machines, rtl_modules, report_file):
+def generate_report(assertions, state_machines, rtl_modules, report_file, cocotb_assertions=None):
     """Generate a detailed translation report"""
     
     with open(report_file, 'w') as f:
@@ -266,7 +286,10 @@ def generate_report(assertions, state_machines, rtl_modules, report_file):
         f.write("-" * 20 + "\n")
         f.write(f"Total assertions processed: {len(assertions)}\n")
         f.write(f"State machines generated: {len(state_machines)}\n")
-        f.write(f"RTL modules generated: {len(rtl_modules)}\n\n")
+        f.write(f"RTL modules generated: {len(rtl_modules)}\n")
+        if cocotb_assertions:
+            f.write(f"Cocotb assertions generated: {len(cocotb_assertions)}\n")
+        f.write("\n")
         
         # Assertion details
         f.write("ASSERTION DETAILS\n")
@@ -307,6 +330,20 @@ def generate_report(assertions, state_machines, rtl_modules, report_file):
             f.write(f"  Internal signals: {len(module.signals)}\n")
             f.write(f"  Parameters: {len(module.parameters)}\n")
             f.write("\n")
+        
+        # Cocotb assertion details
+        if cocotb_assertions:
+            f.write("COCOTB ASSERTION DETAILS\n")
+            f.write("-" * 20 + "\n")
+            
+            for assertion_name, cocotb_assertion in cocotb_assertions.items():
+                f.write(f"Cocotb Assertion: {assertion_name}\n")
+                f.write(f"  Class: {cocotb_assertion.class_name}\n")
+                f.write(f"  Clock: {cocotb_assertion.clock_name}\n")
+                f.write(f"  Reset: {cocotb_assertion.reset_name}\n")
+                f.write(f"  Signals: {len(cocotb_assertion.signals)}\n")
+                f.write(f"  Signal list: {', '.join(sorted(cocotb_assertion.signals))}\n")
+                f.write("\n")
 
 
 # Create CLI group

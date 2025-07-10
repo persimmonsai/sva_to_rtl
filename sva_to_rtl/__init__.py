@@ -13,9 +13,10 @@ try:
     from .parser import SVAParser
     from .state_machine import StateMachineGenerator
     from .rtl_generator import RTLGenerator
+    from .cocotb_generator import CocotbGenerator
     from .cli import main
 except ImportError:
     # Handle import errors gracefully
     pass
 
-__all__ = ["SVAParser", "StateMachineGenerator", "RTLGenerator", "main"]
+__all__ = ["SVAParser", "StateMachineGenerator", "RTLGenerator", "CocotbGenerator", "main"]

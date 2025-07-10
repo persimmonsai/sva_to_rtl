@@ -18,7 +18,7 @@ def run_demo():
     
     # Set up paths
     base_dir = Path(__file__).parent
-    python_path = base_dir / ".venv" / "bin" / "python"
+    python_path = "python" 
     output_dir = base_dir / "demo_output"
     
     # Environment setup
